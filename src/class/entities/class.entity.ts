@@ -10,6 +10,7 @@ import {
   OneToMany,
   OneToOne,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
 @Entity({ name: 'classes', synchronize: true })
@@ -23,14 +24,10 @@ export class Class {
   @Column({ name: 'class_school_year' })
   schoolYear: string;
 
-  @Column({ name: 'teacher_id' })
-  teacherId: String;
-
-  @OneToMany(() => Student, (student) => student.class)
+  @OneToMany(() => Student, (student) => student.class, { cascade: true })
   students: Student[];
 
-  @OneToOne(() => Teacher)
-  @JoinColumn({ name: 'teacher_id' })
+  @OneToOne(() => Teacher, (teacher) => teacher.class)
   teacher: Teacher;
 
   @CreateDateColumn({
@@ -46,4 +43,7 @@ export class Class {
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

@@ -10,7 +10,7 @@ import {
 import { ClassService } from './class.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
-
+import { Query } from '@nestjs/common/decorators';
 @Controller('class')
 export class ClassController {
   constructor(private readonly classService: ClassService) {}
@@ -21,13 +21,20 @@ export class ClassController {
   }
 
   @Get()
+  searchByQuery(
+    @Query('name') name?: string,
+    @Query('schoolYear') schoolYear?: string,
+  ) {
+    return this.classService.searchByQuery(name, schoolYear);
+  }
+  @Get()
   findAll() {
     return this.classService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.classService.findOne(id);
+  findById(@Param('id') id: string) {
+    return this.classService.findById(id);
   }
 
   @Patch(':id')

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { Class } from './entities/class.entity';
@@ -16,35 +16,54 @@ export class ClassService {
     return await this.classRepository.save(newClass);
   }
 
+  async searchByQuery(name?: string, schoolYear?: string) {
+    const whereClause = {
+      name: name ? ILike(`%${name}%`) : undefined,
+      schoolYear: schoolYear ? ILike(`%${schoolYear}%`) : undefined,
+    };
+    const result = await this.classRepository.find({
+      where: whereClause,
+      relations: {
+        students: true,
+      },
+    });
+    if (result.length === 0) {
+      throw new NotFoundException('No result found');
+    }
+    return result;
+  }
   async findAll() {
-    return await this.classRepository.find({
+    return await this.classRepository.find({});
+  }
+
+  async findById(id: string) {
+    const classes = await this.classRepository.find({
+      where: { id },
       relations: {
         teacher: true,
         students: true,
       },
     });
-  }
-
-  async findOne(id: string) {
-    return await this.classRepository.find({
-      where: { id },
-    });
+    if (classes.length === 0) {
+      throw new NotFoundException('Class not found');
+    }
+    return classes;
   }
 
   async update(id: string, updateClassDto: UpdateClassDto) {
     const newClass = await this.classRepository.findOne({ where: { id } });
     if (!newClass) {
-      throw new Error();
+      throw new NotFoundException('Class not found');
     }
     Object.assign(newClass, updateClassDto);
     return this.classRepository.save(newClass);
   }
 
   async remove(id: string) {
-    const newClass = await this.classRepository.findOne({ where: { id } });
-    if (!newClass) {
-      throw new Error();
+    const classes = await this.classRepository.findOne({ where: { id } });
+    if (!classes) {
+      throw new NotFoundException('Class not found');
     }
-    return this.classRepository.remove(newClass);
+    return await this.classRepository.softRemove(classes);
   }
 }

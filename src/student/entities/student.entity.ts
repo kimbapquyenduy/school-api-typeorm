@@ -8,6 +8,7 @@ import {
   BeforeUpdate,
   ManyToOne,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 @Entity({ name: 'students' })
 export class Student {
@@ -26,7 +27,7 @@ export class Student {
   @Column({ name: 'student_date_of_birth' })
   dateOfBirth: Date;
 
-  @Column({ name: 'class_id' })
+  @Column({ name: 'class_id', nullable: true })
   classId: String;
 
   @ManyToOne(() => Class, (classes) => classes.students)
@@ -46,4 +47,7 @@ export class Student {
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

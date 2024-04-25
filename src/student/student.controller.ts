@@ -6,10 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
+  NotFoundException,
 } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
+
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { Query } from '@nestjs/common/decorators';
 
 @Controller('student')
 export class StudentController {
@@ -21,22 +26,41 @@ export class StudentController {
   }
 
   @Get()
+  searchByQuery(
+    @Query('firstName') firstName?: string,
+    @Query('lastName') lastName?: string,
+  ) {
+    return this.studentService.searchByQuery(firstName, lastName);
+  }
+
+  @Get()
   findAll() {
     return this.studentService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.studentService.findOne(id);
+  findById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.studentService.findById(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
-    return this.studentService.update(id, updateStudentDto);
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateStudentDto: UpdateStudentDto,
+  ) {
+    try {
+      return await this.studentService.update(id, updateStudentDto);
+    } catch (error) {
+      throw new ConflictException(error.message);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.studentService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    try {
+      return await this.studentService.remove(id);
+    } catch (error) {
+      throw new ConflictException(error.message);
+    }
   }
 }

@@ -8,6 +8,7 @@ import {
   BeforeUpdate,
   OneToOne,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 @Entity({ name: 'teachers', synchronize: true })
 export class Teacher {
@@ -29,7 +30,12 @@ export class Teacher {
   @Column({ name: 'specialize' })
   specialize: string;
 
-  @OneToOne(() => Class)
+  @Column({ name: 'class_id', nullable: true })
+  classId: string;
+
+  @OneToOne(() => Class, (theClass) => theClass.teacher, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'class_id' })
   class: Class;
 
@@ -47,6 +53,8 @@ export class Teacher {
   })
   updatedAt: Date;
 
+  @DeleteDateColumn()
+  deletedAt: Date;
   // @BeforeUpdate()
   // BeforeUpdate() {
   //   this.updatedAt = new Date();
