@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  school-db:
+    image: postgres:latest
+    ports:
+      - '5434:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: schooldb
+    volumes:
+      - './postgres_data:/var/lib/postgresql/data'
+  nestjs-typeorm-api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    depends_on:
+      - school-db
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./src:/app/src
+volumes:
+  postgres_data:

@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { EntityManager, ILike, Repository } from 'typeorm';
-import { Teacher } from './entities/teacher';
+import { Teacher } from '../entities/teacher';
 import { InjectRepository } from '@nestjs/typeorm';
 import { error } from 'console';
 import validator from 'validator';
+import { SearchByQueryDto } from 'src/proto/teacher';
 
 @Injectable()
 export class TeacherService {
@@ -19,19 +20,22 @@ export class TeacherService {
     return await this.teacherRepository.save(newTeacher);
   }
   async findAll() {
-    return await this.teacherRepository.find({});
+    return { teacher: await this.teacherRepository.find({}) };
   }
-  async searchByQuery(
-    firstName?: string,
-    lastName?: string,
-    gender?: string,
-    specialize?: string,
-  ) {
+  async searchByQuery(SearchByQueryDto: SearchByQueryDto) {
     const whereClause = {
-      firstName: firstName ? ILike(`%${firstName}%`) : undefined,
-      lastName: lastName ? ILike(`%${lastName}%`) : undefined,
-      gender: gender ? ILike(gender) : undefined,
-      specialize: specialize ? ILike(`%${specialize}%`) : undefined,
+      firstName: SearchByQueryDto.firstName
+        ? ILike(`%${SearchByQueryDto.firstName}%`)
+        : undefined,
+      lastName: SearchByQueryDto.lastName
+        ? ILike(`%${SearchByQueryDto.lastName}%`)
+        : undefined,
+      gender: SearchByQueryDto.gender
+        ? ILike(SearchByQueryDto.gender)
+        : undefined,
+      specialize: SearchByQueryDto.specialize
+        ? ILike(`%${SearchByQueryDto.specialize}%`)
+        : undefined,
     };
 
     const result = await this.teacherRepository.find({
@@ -44,7 +48,7 @@ export class TeacherService {
     if (result.length === 0) {
       throw new NotFoundException('No result found');
     }
-    return result;
+    return { teacher: result };
   }
 
   async findById(id: string) {

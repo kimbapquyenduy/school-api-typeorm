@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
-import { Class } from './entities/class.entity';
-
+import { Class } from '../entities/class.entity';
+import { ConflictException } from '@nestjs/common/exceptions';
 @Injectable()
 export class ClassService {
   constructor(
@@ -12,6 +12,16 @@ export class ClassService {
     private readonly classRepository: Repository<Class>,
   ) {}
   async create(createClassDto: CreateClassDto) {
+    const result = await this.classRepository.find({
+      where: {
+        name: ILike(createClassDto.name),
+        schoolYear: ILike(createClassDto.schoolYear),
+      },
+    });
+
+    if (result.length > 0) {
+      throw new ConflictException('This class is already exist');
+    }
     const newClass = this.classRepository.create(createClassDto);
     return await this.classRepository.save(newClass);
   }
@@ -23,9 +33,6 @@ export class ClassService {
     };
     const result = await this.classRepository.find({
       where: whereClause,
-      relations: {
-        students: true,
-      },
     });
     if (result.length === 0) {
       throw new NotFoundException('No result found');

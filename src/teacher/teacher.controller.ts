@@ -9,55 +9,66 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { TeacherService } from './teacher.service';
-import { CreateTeacherDto } from './dto/create-teacher.dto';
-import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { Query } from '@nestjs/common/decorators';
+import {
+  CreateTeacherDto,
+  FindAllTeacherDto,
+  FindTeacherByIdDto,
+  RemoveTeacherDto,
+  SearchByQueryDto,
+  Teacher,
+  Teachers,
+  TeacherServiceController,
+  TeacherServiceControllerMethods,
+  UpdateTeacherDto,
+} from 'src/proto/teacher';
+import { Observable } from 'rxjs';
+
 @Controller('teacher')
-export class TeacherController {
+@TeacherServiceControllerMethods()
+export class TeacherController implements TeacherServiceController {
   constructor(private readonly teacherService: TeacherService) {}
+  update(updateTeacherDto: UpdateTeacherDto): Promise<Teacher> {
+    return this.teacherService.update(updateTeacherDto.id, updateTeacherDto);
+  }
+  async remove(removeTeacherDto: RemoveTeacherDto): Promise<Teacher> {
+    return await this.teacherService.remove(removeTeacherDto.id);
+  }
+  async create(createTeacherDto: CreateTeacherDto): Promise<Teacher> {
+    return await this.teacherService.create(createTeacherDto);
+  }
+  async searchByQuery(searchByQueryDto: SearchByQueryDto): Promise<Teachers> {
+    const Teacher = await this.teacherService.searchByQuery(searchByQueryDto);
 
-  @Post()
-  create(@Body() createTeacherDto: CreateTeacherDto) {
-    return this.teacherService.create(createTeacherDto);
+    return Teacher;
   }
+  async findAll(request: FindAllTeacherDto): Promise<Teachers> {
+    const Teacher = await this.teacherService.findAll();
 
-  @Get()
-  searchByQuery(
-    @Query('firstName') firstName?: string,
-    @Query('lastName') lastName?: string,
-    @Query('gender') gender?: string,
-    @Query('specialize') specialize?: string,
-  ) {
-    return this.teacherService.searchByQuery(
-      firstName,
-      lastName,
-      gender,
-      specialize,
-    );
-  }
-  @Get()
-  findAll() {
-    return this.teacherService.findAll();
-  }
-  @Get(':id')
-  findById(@Param('id', ParseUUIDPipe) id: string) {
-    return this.teacherService.findById(id);
+    return Teacher;
   }
 
-  @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateTeacherDto: UpdateTeacherDto,
-  ) {
-    return this.teacherService.update(id, updateTeacherDto);
+  async findById(findTeacherByIdDto: FindTeacherByIdDto): Promise<Teacher> {
+    const Teacher = await this.teacherService.findById(findTeacherByIdDto.id);
+    return {
+      ...Teacher[0],
+    };
   }
 
-  @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.teacherService.remove(id);
-  }
-  @Delete(':id/f')
-  removeF(@Param('id', ParseUUIDPipe) id: string) {
-    return this.teacherService.removeF(id);
-  }
+  // @Patch(':id')
+  // update(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Body() updateTeacherDto: UpdateTeacherDto,
+  // ) {
+  //   return this.teacherService.update(id, updateTeacherDto);
+  // }
+
+  // @Delete(':id')
+  // remove(@Param('id', ParseUUIDPipe) id: string) {
+  //   return this.teacherService.remove(id);
+  // }
+  // @Delete(':id/f')
+  // removeF(@Param('id', ParseUUIDPipe) id: string) {
+  //   return this.teacherService.removeF(id);
+  // }
 }

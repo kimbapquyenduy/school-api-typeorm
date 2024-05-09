@@ -39,7 +39,4 @@ export class CreateTeacherDto {
   @IsString()
   @IsNotEmpty({ message: 'Specialize name should not be empty' })
   specialize: string;
-
-  @IsUUID()
-  classId: string;
 }

@@ -31,7 +31,4 @@ export class CreateStudentDto {
   @IsDateString()
   @IsNotEmpty({ message: 'DOB must not be empty' })
   dateOfBirth: Date;
-
-  @IsUUID()
-  classId: string;
 }

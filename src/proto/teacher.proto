@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package teacher;
+
+service TeacherService {
+  rpc findById (FindTeacherByIdDto) returns (Teacher) {}
+  rpc findAll (FindAllTeacherDto) returns (Teachers) {}
+  rpc searchByQuery (SearchByQueryDto) returns (Teachers){}
+  rpc create (CreateTeacherDto) returns (Teacher) {}
+  rpc update (UpdateTeacherDto) returns (Teacher) {}
+  rpc remove (RemoveTeacherDto) returns (Teacher) {}
+}
+message CreateTeacherDto{
+  string first_name = 1;
+  string last_name = 2;
+  string gender = 3;
+  google.protobuf.Timestamp date_of_birth = 4;
+  string specialize = 5;
+  optional string class_id = 6;
+}
+ message UpdateTeacherDto{
+  string id = 1;
+  optional string first_name = 2;
+  optional string last_name = 3;
+  optional string gender = 4;
+  optional google.protobuf.Timestamp date_of_birth = 5;
+  optional string specialize = 6;
+  optional string class_id = 7;
+}
+message RemoveTeacherDto {
+  string id = 1;
+}
+message FindTeacherByIdDto {
+  string id = 1;
+}
+message FindAllTeacherDto {
+  
+}
+message SearchByQueryDto {
+  optional string firstName = 1;
+  optional string lastName = 2;
+  optional string gender = 3;
+  optional string specialize = 4 ;
+}
+message Teachers {
+ repeated Teacher teacher = 1;
+}
+message Teacher {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string gender = 4;
+  google.protobuf.Timestamp date_of_birth = 5;
+  string specialize = 6;
+  string class_id = 7;
+  google.protobuf.Timestamp createdAt = 8;
+  optional google.protobuf.Timestamp deletedAt = 9;
+  google.protobuf.Timestamp updatedAt = 10;
+}
